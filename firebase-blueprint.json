@@ -1,0 +1,243 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User account settings and learning preferences",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "photoURL": { "type": "string", "maxLength": 1024 },
+        "selectedGoals": { "type": "array" },
+        "activePathId": { "type": "string", "maxLength": 128 },
+        "level": { "type": "string", "enum": ["beginner", "intermediate", "advanced"] },
+        "dailyGoalMinutes": { "type": "number" },
+        "streakDays": { "type": "number" },
+        "lastActiveDate": { "type": "string", "maxLength": 64 },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["userId", "email"]
+    },
+    "LearningPath": {
+      "title": "Learning Path",
+      "description": "Custom learning curriculum and roadmap for a goal",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 256 },
+        "domain": { "type": "string", "maxLength": 64 },
+        "goal": { "type": "string", "maxLength": 512 },
+        "targetDate": { "type": "string", "maxLength": 64 },
+        "totalHoursEstimate": { "type": "number" },
+        "level": { "type": "string", "enum": ["beginner", "intermediate", "advanced"] },
+        "syllabusRaw": { "type": "string", "maxLength": 65536 },
+        "status": { "type": "string", "enum": ["active", "completed", "paused", "archived"] },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "title", "domain"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "High-level domain category in a learning path",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "pathId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 128 },
+        "description": { "type": "string", "maxLength": 1024 },
+        "order": { "type": "number" },
+        "color": { "type": "string", "maxLength": 32 },
+        "masteryScore": { "type": "number" }
+      },
+      "required": ["id", "pathId", "userId", "title"]
+    },
+    "Topic": {
+      "title": "Topic",
+      "description": "Granular learning topic with mastery tracking",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "subjectId": { "type": "string", "maxLength": 128 },
+        "pathId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 256 },
+        "description": { "type": "string", "maxLength": 2048 },
+        "order": { "type": "number" },
+        "difficulty": { "type": "string", "enum": ["beginner", "intermediate", "advanced"] },
+        "estimatedMinutes": { "type": "number" },
+        "prerequisites": { "type": "array" },
+        "masteryScore": { "type": "number" },
+        "status": { "type": "string", "enum": ["not_started", "in_progress", "mastered", "revision_due"] },
+        "lastPracticedAt": { "type": "string", "maxLength": 64 },
+        "revisionDueAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "subjectId", "pathId", "userId", "title"]
+    },
+    "Resource": {
+      "title": "Learning Resource",
+      "description": "Attached study material, article, video, book, or paper",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "pathId": { "type": "string", "maxLength": 128 },
+        "topicId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 256 },
+        "type": { "type": "string", "enum": ["pdf", "url", "video", "doc", "repo", "paper", "exercise"] },
+        "sourceUrl": { "type": "string", "maxLength": 2048 },
+        "contentSnippet": { "type": "string", "maxLength": 8192 },
+        "tags": { "type": "array" },
+        "isRequired": { "type": "boolean" },
+        "aiRecommended": { "type": "boolean" },
+        "tier": { "type": "string", "enum": ["primary", "secondary", "practice", "project", "advanced"] },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "title", "type"]
+    },
+    "Note": {
+      "title": "Digital Note",
+      "description": "User notes, AI study guide, concept map, or summary",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "pathId": { "type": "string", "maxLength": 128 },
+        "topicId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 256 },
+        "content": { "type": "string", "maxLength": 65536 },
+        "type": { "type": "string", "enum": ["manual", "summary", "study_guide", "flashcards", "faq", "concept_map"] },
+        "sourceIds": { "type": "array" },
+        "isGrounded": { "type": "boolean" },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "title", "content"]
+    },
+    "Question": {
+      "title": "Practice Question",
+      "description": "AI or syllabus generated question with solution",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "pathId": { "type": "string", "maxLength": 128 },
+        "topicId": { "type": "string", "maxLength": 128 },
+        "prompt": { "type": "string", "maxLength": 4096 },
+        "type": { "type": "string", "enum": ["mcq", "multi_select", "true_false", "coding", "short_answer", "numerical", "scenario"] },
+        "options": { "type": "array" },
+        "correctAnswer": { "type": "string", "maxLength": 2048 },
+        "explanation": { "type": "string", "maxLength": 4096 },
+        "difficulty": { "type": "string", "enum": ["beginner", "intermediate", "advanced"] },
+        "domain": { "type": "string", "maxLength": 64 },
+        "sourceRef": { "type": "string", "maxLength": 256 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "prompt", "type", "correctAnswer"]
+    },
+    "QuestionAttempt": {
+      "title": "Question Attempt",
+      "description": "Record of a learner answering a question",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "questionId": { "type": "string", "maxLength": 128 },
+        "topicId": { "type": "string", "maxLength": 128 },
+        "pathId": { "type": "string", "maxLength": 128 },
+        "userAnswer": { "type": "string", "maxLength": 2048 },
+        "isCorrect": { "type": "boolean" },
+        "timeSpentSec": { "type": "number" },
+        "feedback": { "type": "string", "maxLength": 2048 },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "questionId", "isCorrect"]
+    },
+    "Project": {
+      "title": "Project",
+      "description": "Hands-on application project linked to learning path topics",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "pathId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 256 },
+        "domain": { "type": "string", "maxLength": 64 },
+        "description": { "type": "string", "maxLength": 4096 },
+        "objectives": { "type": "array" },
+        "requirements": { "type": "array" },
+        "neededKnowledge": { "type": "array" },
+        "tasks": { "type": "array" },
+        "progress": { "type": "number" },
+        "githubUrl": { "type": "string", "maxLength": 1024 },
+        "status": { "type": "string", "enum": ["planning", "in_progress", "completed"] },
+        "createdAt": { "type": "string", "maxLength": 64 },
+        "updatedAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "title", "domain"]
+    },
+    "StudySession": {
+      "title": "Study Session",
+      "description": "Log of focused study, practice, or exam session",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "pathId": { "type": "string", "maxLength": 128 },
+        "topicId": { "type": "string", "maxLength": 128 },
+        "durationMinutes": { "type": "number" },
+        "mode": { "type": "string", "enum": ["learn", "practice", "revision", "exam", "coding", "interview"] },
+        "questionsAttempted": { "type": "number" },
+        "accuracy": { "type": "number" },
+        "createdAt": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["id", "userId", "durationMinutes", "mode"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile and top-level stats"
+    },
+    "/users/{userId}/learningPaths/{pathId}": {
+      "schema": "LearningPath",
+      "description": "User learning paths"
+    },
+    "/users/{userId}/subjects/{subjectId}": {
+      "schema": "Subject",
+      "description": "Curriculum subjects"
+    },
+    "/users/{userId}/topics/{topicId}": {
+      "schema": "Topic",
+      "description": "Topics with mastery and prerequisite data"
+    },
+    "/users/{userId}/resources/{resourceId}": {
+      "schema": "Resource",
+      "description": "User resources and study materials"
+    },
+    "/users/{userId}/notes/{noteId}": {
+      "schema": "Note",
+      "description": "Digital notebook notes and AI study summaries"
+    },
+    "/users/{userId}/questions/{questionId}": {
+      "schema": "Question",
+      "description": "Questions for practice and exams"
+    },
+    "/users/{userId}/attempts/{attemptId}": {
+      "schema": "QuestionAttempt",
+      "description": "History of answered questions for mastery calculation"
+    },
+    "/users/{userId}/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Practical projects connected to learning path"
+    },
+    "/users/{userId}/studySessions/{sessionId}": {
+      "schema": "StudySession",
+      "description": "Logged study sessions for streak and time tracking"
+    }
+  }
+}

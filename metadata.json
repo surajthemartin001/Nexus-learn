@@ -1,0 +1,6 @@
+{
+  "name": "NEXUS Learn - AI Study & Learning Hub",
+  "description": "A personalized AI-powered institute-grade learning ecosystem, digital notebook, practice platform, and mastery tracker for developers, cybersecurity, AI/ML, robotics, and competitive exams.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

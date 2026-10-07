@@ -1,0 +1,184 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Security Primitives
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // User Profile
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId)
+        && isValidId(userId)
+        && incoming().userId == userId
+        && incoming().email is string
+        && incoming().email.size() <= 256;
+      allow update: if isOwner(userId)
+        && incoming().userId == userId
+        && incoming().email == existing().email;
+      allow delete: if isOwner(userId);
+
+      // Subcollection: learningPaths
+      match /learningPaths/{pathId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(pathId)
+          && incoming().userId == userId
+          && incoming().title is string
+          && incoming().title.size() <= 256
+          && incoming().domain is string
+          && incoming().domain.size() <= 64;
+        allow update: if isOwner(userId)
+          && incoming().userId == userId
+          && incoming().title is string
+          && incoming().title.size() <= 256;
+        allow delete: if isOwner(userId);
+      }
+
+      // Subcollection: subjects
+      match /subjects/{subjectId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(subjectId)
+          && incoming().userId == userId
+          && incoming().title is string
+          && incoming().title.size() <= 128;
+        allow update: if isOwner(userId)
+          && incoming().userId == userId
+          && incoming().title is string
+          && incoming().title.size() <= 128;
+        allow delete: if isOwner(userId);
+      }
+
+      // Subcollection: topics
+      match /topics/{topicId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(topicId)
+          && incoming().userId == userId
+          && incoming().title is string
+          && incoming().title.size() <= 256;
+        allow update: if isOwner(userId)
+          && incoming().userId == userId
+          && incoming().title is string
+          && incoming().title.size() <= 256;
+        allow delete: if isOwner(userId);
+      }
+
+      // Subcollection: resources
+      match /resources/{resourceId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(resourceId)
+          && incoming().userId == userId
+          && incoming().title is string
+          && incoming().title.size() <= 256
+          && incoming().type is string
+          && incoming().type.size() <= 32;
+        allow update: if isOwner(userId)
+          && incoming().userId == userId
+          && incoming().title is string
+          && incoming().title.size() <= 256;
+        allow delete: if isOwner(userId);
+      }
+
+      // Subcollection: notes
+      match /notes/{noteId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(noteId)
+          && incoming().userId == userId
+          && incoming().title is string
+          && incoming().title.size() <= 256
+          && incoming().content is string
+          && incoming().content.size() <= 65536;
+        allow update: if isOwner(userId)
+          && incoming().userId == userId
+          && incoming().title is string
+          && incoming().title.size() <= 256
+          && incoming().content is string
+          && incoming().content.size() <= 65536;
+        allow delete: if isOwner(userId);
+      }
+
+      // Subcollection: questions
+      match /questions/{questionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(questionId)
+          && incoming().userId == userId
+          && incoming().prompt is string
+          && incoming().prompt.size() <= 4096
+          && incoming().type is string
+          && incoming().type.size() <= 32;
+        allow update: if isOwner(userId)
+          && incoming().userId == userId
+          && incoming().prompt is string
+          && incoming().prompt.size() <= 4096;
+        allow delete: if isOwner(userId);
+      }
+
+      // Subcollection: attempts
+      match /attempts/{attemptId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(attemptId)
+          && incoming().userId == userId
+          && incoming().questionId is string
+          && incoming().isCorrect is bool;
+        allow update: if false; // Attempts are immutable audit records
+        allow delete: if isOwner(userId);
+      }
+
+      // Subcollection: projects
+      match /projects/{projectId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(projectId)
+          && incoming().userId == userId
+          && incoming().title is string
+          && incoming().title.size() <= 256;
+        allow update: if isOwner(userId)
+          && incoming().userId == userId
+          && incoming().title is string
+          && incoming().title.size() <= 256;
+        allow delete: if isOwner(userId);
+      }
+
+      // Subcollection: studySessions
+      match /studySessions/{sessionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(sessionId)
+          && incoming().userId == userId
+          && incoming().durationMinutes is number
+          && incoming().durationMinutes >= 0;
+        allow update: if false; // Sessions are immutable logs
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}
